@@ -14,12 +14,10 @@ export default function ResumeDialog({
   open,
   onOpenChange,
   resumePath,
-  onSelect,
 }: {
   open: boolean
   onOpenChange: (v: boolean) => void
   resumePath: string
-  onSelect: () => void
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,16 +30,7 @@ export default function ResumeDialog({
           <MarkdownViewer path={resumePath} />
         </div>
 
-        <DialogFooter className="mt-6 border-t pt-4 flex-shrink-0">
-          <Button 
-            onClick={onSelect}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-            variant="default"
-            size="lg"
-          >
-            選擇此人
-          </Button>
-        </DialogFooter>
+        
       </DialogContent>
     </Dialog>
   )
