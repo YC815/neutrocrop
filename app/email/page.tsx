@@ -1,25 +1,14 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
-import EmailInboxStage2 from '../components/EmailInboxStage2'
-import EmailInboxStage3 from '../components/EmailInboxStage3'
-import EmailInboxStage4 from '../components/EmailInboxStage4'
+import { Suspense } from 'react'
+import EmailInboxRouter from '../components/EmailInboxRouter'
 
 export default function EmailPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const stage = searchParams.get('stage') || '2'
-  
-  // 根據stage參數顯示不同階段的收件匣
-  if (stage === '4') {
-    return <EmailInboxStage4 />
-  }
-  
-  if (stage === '3') {
-    return <EmailInboxStage3 />
-  }
-  
-  // 預設顯示第二關收件匣
-  return <EmailInboxStage2 />
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+    </div>}>
+      <EmailInboxRouter />
+    </Suspense>
+  )
 } 
