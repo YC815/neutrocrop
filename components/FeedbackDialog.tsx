@@ -7,7 +7,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
 
 const feedback = {
   black: '你真的覺得這選擇對我們形象有幫助嗎？',
@@ -17,10 +16,11 @@ const feedback = {
 
 export default function FeedbackDialog({
   selectedId,
+  onComplete,
 }: {
   selectedId: string | null
+  onComplete: () => void
 }) {
-  const router = useRouter()
   const open = !!selectedId
 
   return (
@@ -32,7 +32,7 @@ export default function FeedbackDialog({
         <p>{selectedId ? feedback[selectedId as keyof typeof feedback] : ''}</p>
         <DialogFooter className="mt-4">
           <Button 
-            onClick={() => router.push('/stage/2')}
+            onClick={onComplete}
             variant="default"
             size="default"
             className=""

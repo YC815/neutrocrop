@@ -6,6 +6,7 @@ import ApplicantCard from '@/components/ApplicantCard'
 import dynamic from 'next/dynamic'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 // 使用動態導入確保 Dialog 組件只在客戶端渲染
 const ResumeDialog = dynamic(
@@ -14,16 +15,28 @@ const ResumeDialog = dynamic(
 )
 
 export default function StageOne() {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [viewingId, setViewingId] = useState<string | null>(null)
+  const [showFeedback, setShowFeedback] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const getPath = (id: string) => `/data/resumes/${id}.md`
+
+  const handleSelection = () => {
+    setSelectedId(confirmingId)
+    setConfirmingId(null)
+    setShowFeedback(true)
+  }
+
+  const handleFeedbackComplete = () => {
+    router.push('/email')
+  }
 
   // 添加 suppressHydrationWarning 屬性到外層容器
   return (
@@ -60,25 +73,29 @@ export default function StageOne() {
               />
             )}
             <Dialog open={!!confirmingId} onOpenChange={open => !open && setConfirmingId(null)}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>確定要選擇此人嗎？</DialogTitle>
+              <DialogContent className="bg-white">
+                <DialogHeader className="mb-4">
+                  <DialogTitle className="text-xl">確定要選擇此人嗎？</DialogTitle>
                 </DialogHeader>
                 <div className="flex justify-end gap-4 mt-6">
-                  <Button variant="outline" onClick={() => setConfirmingId(null)}>取消</Button>
+                  <Button variant="outline" size="default" onClick={() => setConfirmingId(null)}>取消</Button>
                   <Button
                     className="bg-indigo-600 text-white"
-                    onClick={() => {
-                      setSelectedId(confirmingId)
-                      setConfirmingId(null)
-                    }}
+                    variant="default"
+                    size="default"
+                    onClick={handleSelection}
                   >
                     確定
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
-            <FeedbackDialog selectedId={selectedId} />
+            {showFeedback && (
+              <FeedbackDialog 
+                selectedId={selectedId} 
+                onComplete={handleFeedbackComplete}
+              />
+            )}
           </>
         )}
       </div>
