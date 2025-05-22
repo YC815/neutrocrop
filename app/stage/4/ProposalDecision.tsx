@@ -70,7 +70,7 @@ export default function ProposalDecision({ onSelect, onSubmit, selectedId }: Pro
             }}
           >
             <h2 className="text-lg font-semibold mb-2 text-stone-900">{p.title}</h2>
-            <p className="text-sm text-gray-600 mb-2 text-stone-900">{p.content}</p>
+            <p className="text-sm text-stone-900 mb-2">{p.content}</p>
             <div className="text-sm text-gray-500">💰 預算需求：${p.cost.toLocaleString()}</div>
             <div className="absolute top-2 right-2 text-xs bg-gray-200 rounded-full px-2 py-1 text-gray-700">
               {p.tag}

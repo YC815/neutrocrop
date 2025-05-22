@@ -1,13 +1,20 @@
 'use client'
 
 import { motion } from "framer-motion"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import FinalReflectionAnimation from "@/components/FinalReflectionAnimation"
+import FinalScoreSummary from "@/components/FinalScoreSummary"
 
 interface ResultFeedbackProps {
   selectedProposalId: string
 }
 
 export default function ResultFeedback({ selectedProposalId }: ResultFeedbackProps) {
+  const router = useRouter();
+  const [showReflection, setShowReflection] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+
   const proposalTitles = {
     "a": "族語振興與雙語教材計畫",
     "b": "文化形象包裝訓練營",
@@ -18,6 +25,23 @@ export default function ResultFeedback({ selectedProposalId }: ResultFeedbackPro
     "a": "請你準備好面對經費部門的挑戰與媒體訪談壓力。這是重要的文化保存工作，但需要更多資源支持。",
     "b": "完美決策！這筆錢花得漂亮，形象不會出錯。你對公司制度的理解正符合我們的期望。",
     "c": "這是個平衡的選擇，但要注意藝術創作的不可預測性可能引起爭議。準備好應對各方反應。"
+  }
+
+  const handleCompleteReview = () => {
+    router.push(`/email/result-email?proposal=${selectedProposalId}`);
+  };
+
+  const handleReflectionComplete = () => {
+    setShowReflection(false);
+    setShowSummary(true);
+  };
+
+  if (showReflection) {
+    return <FinalReflectionAnimation onComplete={handleReflectionComplete} />;
+  }
+
+  if (showSummary) {
+    return <FinalScoreSummary />;
   }
 
   return (
@@ -38,32 +62,28 @@ export default function ResultFeedback({ selectedProposalId }: ResultFeedbackPro
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-4 mb-6">
-          <p className="font-semibold mb-3 text-stone-900">
-            你選擇了「{proposalTitles[selectedProposalId as keyof typeof proposalTitles]}」
-          </p>
-          <p className="text-gray-700 mb-4">
-            {feedbackMessages[selectedProposalId as keyof typeof feedbackMessages]}
-          </p>
-          
-          <div className="bg-gray-100 p-3 rounded-lg text-sm text-gray-600 mb-4">
-            <p>不同的選擇反映了不同的價值取向：</p>
-            <ul className="list-disc ml-5 mt-2">
-              <li>高成本理念提案：社會責任vs.財務現實</li>
-              <li>低成本制度提案：形象包裝vs.根本問題</li>
-              <li>中庸創意提案：平衡但可能不夠深入</li>
-            </ul>
-          </div>
+        <div className="mb-6 border-b border-gray-200 pb-6">
+          <h3 className="font-medium text-lg mb-2 text-stone-900">已核准: {proposalTitles[selectedProposalId as keyof typeof proposalTitles]}</h3>
+          <p className="text-gray-600">{feedbackMessages[selectedProposalId as keyof typeof feedbackMessages]}</p>
         </div>
 
-        <div className="text-right">
-          <Link href="/stage/5">
-            <button className="bg-black text-white px-5 py-2 rounded-lg">
-              進入下一關 ➜
-            </button>
-          </Link>
+        <div className="mb-6">
+          <h3 className="font-medium text-lg mb-2 text-stone-900">下一步</h3>
+          <p className="text-gray-600">你的決策將對公司文化產生實質影響。</p>
+          <p className="text-gray-600 mt-2">我們將在下次會議中討論執行細節。</p>
+        </div>
+
+        <div className="flex justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg"
+            onClick={handleCompleteReview}
+          >
+            完成回顧
+          </motion.button>
         </div>
       </motion.div>
     </div>
-  )
+  );
 } 

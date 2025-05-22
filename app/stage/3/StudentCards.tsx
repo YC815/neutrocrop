@@ -137,7 +137,7 @@ export default function StudentCards({ onSelect, onRoundComplete }: StudentCards
                 </div>
                 <div className="bg-gray-50 p-2 rounded">
                   <p className="font-medium text-gray-700">評語：</p>
-                  <p className="text-gray-600 italic">"{student.comment}"</p>
+                  <p className="text-gray-600 italic">&quot;{student.comment}&quot;</p>
                 </div>
               </div>
               
