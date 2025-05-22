@@ -23,7 +23,7 @@ interface Email {
   time: string
 }
 
-export default function EmailInbox() {
+export default function EmailInboxStage4() {
   const router = useRouter()
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
@@ -74,11 +74,7 @@ export default function EmailInbox() {
   ]
 
   const handleEmailClick = (emailId: string) => {
-    if (emailId === "task_briefing_2") {
-      router.push('/email/task-briefing-2')
-    } else if (emailId === "task_briefing_3") {
-      router.push('/email/task-briefing-3')
-    } else if (emailId === "task_briefing_4") {
+    if (emailId === "task_briefing_4") {
       router.push('/email/task-briefing-4')
     }
   }
@@ -152,7 +148,7 @@ export default function EmailInbox() {
                 className="space-y-4"
               >
                 <div className="flex items-center justify-between border-b border-gray-300 pb-4">
-                  <h2 className="text-xl font-semibold text-gray-800">收件匣</h2>
+                  <h2 className="text-xl font-semibold text-stone-900">收件匣</h2>
                   <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">{emails.length} 封郵件</span>
                 </div>
                 
@@ -181,8 +177,8 @@ export default function EmailInbox() {
                         </div>
                       </div>
                       <div className="mt-4">
-                        <h4 className="font-medium mb-2 text-gray-800">{email.title}</h4>
-                        <p className="text-gray-700 mb-4">
+                        <h4 className="font-medium mb-2 text-stone-900">{email.title}</h4>
+                        <p className="text-stone-700 mb-4">
                           {email.preview}
                         </p>
                         {!email.readOnly && (

@@ -23,63 +23,24 @@ interface Email {
   time: string
 }
 
-export default function EmailInbox() {
+export default function EmailInboxStage1() {
   const router = useRouter()
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
 
   const emails: Email[] = [
     {
-      id: "task_briefing_4",
-      title: "📩 第四關：文化提案審核會議",
-      preview: "我們收到三份社區文化提案，請選擇一份通過執行。以下三份文化改善提案都來自一線同仁，涵蓋公平正義、公共形象、與執行可行性。",
-      readOnly: false,
-      time: "15:20 PM"
-    },
-    {
-      id: "mission3_result",
-      title: "【紀錄】第三關：教育資源分配已結束",
-      preview: "您所選擇的學生名單已登記入案，感謝您的參與。您的決策展現了對教育資源分配的價值取向。",
-      readOnly: true,
-      time: "14:45 PM"
-    },
-    {
-      id: "task_briefing_3",
-      title: "📩 第三關：教育資源評估任務",
-      preview: "Hi，我們注意到你在醫療分配中展現了決策敏銳度。現在，我們需要你協助審查三名學生的申請資料，並做出「公平」的資源配置。",
-      readOnly: true,
-      time: "11:45 AM"
-    },
-    {
-      id: "mission2_result",
-      title: "【紀錄】第二關：醫療資源分配已結束",
-      preview: "您所選擇的救援對象已登記入案，感謝您的參與。您的決策展現了值得探討的偏好模式。",
-      readOnly: true,
-      time: "11:30 AM"
-    },
-    {
-      id: "task_briefing_2",
-      title: "第二關：醫療資源分配任務",
-      preview: "親愛的評估官，感謝您在第一關的出色表現。現在，我們需要您處理一個緊急的醫療資源分配任務...",
-      readOnly: true,
-      time: "10:30 AM"
-    },
-    {
       id: "task_briefing_1",
       title: "第一關：人才評估決策",
       preview: "Hi，文化顧問：我們希望你協助人事部門在三位應徵者中做出最佳決策，並兼顧公司形象。請根據資料，判斷誰最適合我們的品牌理念。",
-      readOnly: true,
+      readOnly: false,
       time: "09:35 AM"
     }
   ]
 
   const handleEmailClick = (emailId: string) => {
-    if (emailId === "task_briefing_2") {
-      router.push('/email/task-briefing-2')
-    } else if (emailId === "task_briefing_3") {
-      router.push('/email/task-briefing-3')
-    } else if (emailId === "task_briefing_4") {
-      router.push('/email/task-briefing-4')
+    if (emailId === "task_briefing_1") {
+      router.push('/email/task-briefing-1')
     }
   }
 

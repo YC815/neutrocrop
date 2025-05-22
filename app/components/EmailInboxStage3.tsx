@@ -23,31 +23,17 @@ interface Email {
   time: string
 }
 
-export default function EmailInbox() {
+export default function EmailInboxStage3() {
   const router = useRouter()
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
 
   const emails: Email[] = [
     {
-      id: "task_briefing_4",
-      title: "📩 第四關：文化提案審核會議",
-      preview: "我們收到三份社區文化提案，請選擇一份通過執行。以下三份文化改善提案都來自一線同仁，涵蓋公平正義、公共形象、與執行可行性。",
-      readOnly: false,
-      time: "15:20 PM"
-    },
-    {
-      id: "mission3_result",
-      title: "【紀錄】第三關：教育資源分配已結束",
-      preview: "您所選擇的學生名單已登記入案，感謝您的參與。您的決策展現了對教育資源分配的價值取向。",
-      readOnly: true,
-      time: "14:45 PM"
-    },
-    {
       id: "task_briefing_3",
       title: "📩 第三關：教育資源評估任務",
       preview: "Hi，我們注意到你在醫療分配中展現了決策敏銳度。現在，我們需要你協助審查三名學生的申請資料，並做出「公平」的資源配置。",
-      readOnly: true,
+      readOnly: false,
       time: "11:45 AM"
     },
     {
@@ -74,12 +60,8 @@ export default function EmailInbox() {
   ]
 
   const handleEmailClick = (emailId: string) => {
-    if (emailId === "task_briefing_2") {
-      router.push('/email/task-briefing-2')
-    } else if (emailId === "task_briefing_3") {
+    if (emailId === "task_briefing_3") {
       router.push('/email/task-briefing-3')
-    } else if (emailId === "task_briefing_4") {
-      router.push('/email/task-briefing-4')
     }
   }
 

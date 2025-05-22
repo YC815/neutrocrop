@@ -2,6 +2,7 @@
 
 import { rounds } from "@/app/data/victims"
 import { Victim } from "@/app/types/victim"
+import { useRouter } from "next/navigation"
 
 interface Selection {
   roundId: number
@@ -13,6 +14,7 @@ interface ResultEmailProps {
 }
 
 export default function ResultEmail({ selections }: ResultEmailProps) {
+  const router = useRouter()
   // 計算選擇統計
   const stats = {
     totalRounds: selections.length,
@@ -132,6 +134,10 @@ export default function ResultEmail({ selections }: ResultEmailProps) {
     ignoredGroups.push("穆斯林女性")
   }
 
+  const handleComplete = () => {
+    router.push('/email?stage=3')
+  }
+
   return (
     <div className="min-h-screen bg-white p-8">
       <div className="max-w-2xl mx-auto">
@@ -186,7 +192,7 @@ export default function ResultEmail({ selections }: ResultEmailProps) {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 mb-8">
           <h2 className="text-xl font-semibold text-black">詳細選擇記錄</h2>
           {selections.map((selection, index) => {
             const round = rounds.find(r => r.id === selection.roundId)
@@ -216,6 +222,15 @@ export default function ResultEmail({ selections }: ResultEmailProps) {
               </div>
             )
           })}
+        </div>
+        
+        <div className="flex justify-center">
+          <button
+            onClick={handleComplete}
+            className="px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            完成
+          </button>
         </div>
       </div>
     </div>
