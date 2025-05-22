@@ -1,6 +1,6 @@
 'use client'
 import { useState, useTransition, useEffect } from 'react'
-import SupervisorIntro from '../components/SupervisorIntro.js'
+import SupervisorIntro from '../components/SupervisorIntro'
 import DeskView from '@/components/DeskView'
 import { useRouter } from 'next/navigation'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import EmailInbox from '../components/EmailInbox.js'
+import EmailInbox from '../components/EmailInbox'
 
 export default function EmailPage() {
   return <EmailInbox />

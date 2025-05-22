@@ -72,13 +72,13 @@ export default function StageOne() {
                 resumePath={viewingId ? getPath(viewingId) : ''}
               />
             )}
-            <Dialog open={!!confirmingId} onOpenChange={open => !open && setConfirmingId(null)}>
+            <Dialog open={!!confirmingId} onOpenChange={(open: boolean) => !open && setConfirmingId(null)}>
               <DialogContent className="bg-white">
                 <DialogHeader className="mb-4">
-                  <DialogTitle className="text-xl">確定要選擇此人嗎？</DialogTitle>
+                  <DialogTitle className="text-xl text-black">確定要選擇此人嗎？</DialogTitle>
                 </DialogHeader>
                 <div className="flex justify-end gap-4 mt-6">
-                  <Button variant="outline" size="default" onClick={() => setConfirmingId(null)}>取消</Button>
+                  <Button variant="outline" size="default" className="border-gray-300" onClick={() => setConfirmingId(null)}>取消</Button>
                   <Button
                     className="bg-indigo-600 text-white"
                     variant="default"

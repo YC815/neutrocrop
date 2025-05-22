@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Round } from "@/app/types/victim"
+import { Round, Victim } from "@/app/types/victim"
 import { rounds } from "@/app/data/victims"
 
 interface VictimCardsProps {
@@ -12,7 +12,7 @@ interface VictimCardsProps {
 
 export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsProps) {
   const [currentRound, setCurrentRound] = useState(1)
-  const [timer, setTimer] = useState(30)
+  const [timer, setTimer] = useState(10)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [victims, setVictims] = useState<Round['victims']>([])
 
@@ -24,6 +24,29 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
     }
     return newArray
+  }
+
+  // 受害者的反應訊息
+  const getVictimReaction = (victim: Victim): string => {
+    const highUrgencyReactions = [
+      "我快不行了...",
+      "求求你，救救我！",
+      "我感覺不到我的腿了...",
+      "好痛苦，請幫幫我...",
+      "我需要立刻就醫！"
+    ]
+    
+    const lowUrgencyReactions = [
+      "為什麼不先救我？",
+      "你知道我是誰嗎？",
+      "我有權利優先被救治！",
+      "我需要立刻恢復工作！",
+      "這是歧視！"
+    ]
+    
+    return victim.urgency >= 4 ? 
+      highUrgencyReactions[Math.floor(Math.random() * highUrgencyReactions.length)] : 
+      lowUrgencyReactions[Math.floor(Math.random() * lowUrgencyReactions.length)]
   }
 
   const handleSelect = useCallback((id: string) => {
@@ -39,7 +62,7 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
     // 延遲後進入下一輪
     setTimeout(() => {
       setCurrentRound(prev => prev + 1)
-      setTimer(30)
+      setTimer(10)
       setSelectedId(null)
     }, 2000)
   }, [selectedId, onSelect, onRoundComplete, currentRound])
@@ -61,7 +84,7 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
       // 如果時間到還沒選擇，自動選擇最危急的
       const round = rounds.find(r => r.id === currentRound)
       if (round) {
-        const mostUrgent = round.victims.reduce((prev, current) => 
+        const mostUrgent = round.victims.reduce((prev: Victim, current: Victim) => 
           (current.urgency > prev.urgency) ? current : prev
         )
         handleSelect(mostUrgent.id)
@@ -84,15 +107,12 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
         {victims.map((victim) => (
           <motion.div
             key={victim.id}
-            className={`relative cursor-pointer rounded-lg overflow-hidden shadow-lg transition-all ${
-              selectedId === victim.id ? 'ring-4 ring-blue-500' : ''
+            className={`relative cursor-pointer rounded-lg overflow-hidden shadow-lg transition-all border-2 ${
+              selectedId === victim.id ? 'border-green-500' : selectedId ? 'border-red-500' : 'border-gray-200'
             }`}
             whileHover={{ scale: 1.02 }}
             onClick={() => handleSelect(victim.id)}
           >
-            <div className="aspect-[3/4] bg-gray-200 relative">
-              {/* 這裡可以加入受害者圖片 */}
-            </div>
             <div className="p-4 bg-white">
               <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-semibold text-black">{victim.name}</h3>
@@ -100,7 +120,19 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
                   {victim.race}
                 </span>
               </div>
-              <p className="text-gray-600 text-sm">{victim.description}</p>
+              <p className="text-gray-600 text-sm mb-3">{victim.description}</p>
+              
+              {selectedId && (
+                <div className={`mt-2 p-2 rounded ${
+                  selectedId === victim.id ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {selectedId === victim.id ? (
+                    <p className="font-medium">救助中...</p>
+                  ) : (
+                    <p className="italic">{getVictimReaction(victim)}</p>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         ))}
