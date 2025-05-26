@@ -5,7 +5,7 @@ import StudentCards from "./StudentCards"
 import ResultEmail from "./ResultEmail"
 import { StudentSelection, Student } from "../../types/student"
 import { updateStage3Selection } from '../../lib/gameStore'
-import { students as allStudentsData, Student as StudentData } from '../../data/students'
+import { students as allStudentsData } from '../../data/students'
 
 export default function EducationResource() {
   const [selections, setSelections] = useState<StudentSelection[]>([])
@@ -16,7 +16,7 @@ export default function EducationResource() {
   }
 
   const handleRoundComplete = (roundId: number, selectedStudentId: string) => {
-    const selectedStudent = allStudentsData.find((s: StudentData) => s.id === selectedStudentId);
+    const selectedStudent = allStudentsData.find((s: Student) => s.id === selectedStudentId);
     if (selectedStudent) {
       updateStage3Selection(roundId, selectedStudentId, selectedStudent.needsLevel, selectedStudent.companyPreferred);
       setSelections(prev => [...prev, { roundId, studentId: selectedStudentId }])

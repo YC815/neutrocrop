@@ -39,6 +39,7 @@ export default function ApplicantCard({ data, onOpenResume, onSelect, disabled, 
             查看履歷
           </Button>
           <Button 
+            variant="default"
             onClick={onSelect} 
             disabled={disabled || selected}
             className={`w-full ${selected ? 'bg-indigo-300' : 'bg-indigo-600 hover:bg-indigo-700'}`}
