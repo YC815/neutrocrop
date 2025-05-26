@@ -2,70 +2,57 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Student } from "@/app/types/student"
-import { students } from "@/app/data/students"
+import { Student } from "../../types/student"
+import { students, TOTAL_STUDENT_ROUNDS } from "../../data/students"
 
 interface StudentCardsProps {
   onSelect: (id: string) => void
   onRoundComplete: (roundId: number, selectedId: string) => void
+  onAllRoundsComplete?: () => void
 }
 
-export default function StudentCards({ onSelect, onRoundComplete }: StudentCardsProps) {
+export default function StudentCards({ onSelect, onRoundComplete, onAllRoundsComplete }: StudentCardsProps) {
   const [currentRound, setCurrentRound] = useState(1)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [currentStudents, setCurrentStudents] = useState<Student[]>([])
 
-  // 從所有學生中隨機選出3個用於當前輪次
   useEffect(() => {
     const getRandomStudents = () => {
-      const allStudents = [...students]
-      const roundStudents: Student[] = []
-      
-      // 確保每輪包含至少一個高需求學生和一個公司偏好學生
-      const highNeedsStudents = allStudents.filter(s => s.needsLevel >= 4)
-      const companyPreferredStudents = allStudents.filter(s => s.companyPreferred)
-      
-      // 隨機選擇一個高需求學生
-      if (highNeedsStudents.length > 0) {
-        const randomIndex = Math.floor(Math.random() * highNeedsStudents.length)
-        const selected = highNeedsStudents[randomIndex]
-        roundStudents.push(selected)
-        
-        // 從全部學生中移除已選的學生
-        const index = allStudents.findIndex(s => s.id === selected.id)
-        if (index !== -1) allStudents.splice(index, 1)
+      let availableStudents = [...students];
+      const roundStudents: Student[] = [];
+  
+      // 嘗試選取至少一個高需求和一個公司偏好 (如果可能且不重複)
+      const highNeeds = availableStudents.filter(s => s.needsLevel >= 4);
+      const companyPreferred = availableStudents.filter(s => s.companyPreferred);
+  
+      if (highNeeds.length > 0) {
+        const selected = highNeeds[Math.floor(Math.random() * highNeeds.length)];
+        roundStudents.push(selected);
+        availableStudents = availableStudents.filter(s => s.id !== selected.id);
       }
-      
-      // 隨機選擇一個公司偏好學生
-      if (companyPreferredStudents.length > 0) {
-        const randomIndex = Math.floor(Math.random() * companyPreferredStudents.length)
-        const selected = companyPreferredStudents[randomIndex]
-        
-        // 避免重複選擇
-        if (!roundStudents.find(s => s.id === selected.id)) {
-          roundStudents.push(selected)
-          
-          // 從全部學生中移除已選的學生
-          const index = allStudents.findIndex(s => s.id === selected.id)
-          if (index !== -1) allStudents.splice(index, 1)
+  
+      if (companyPreferred.length > 0) {
+        const potentialSelection = companyPreferred[Math.floor(Math.random() * companyPreferred.length)];
+        if (!roundStudents.find(rs => rs.id === potentialSelection.id) && availableStudents.find(s => s.id === potentialSelection.id)) {
+          roundStudents.push(potentialSelection);
+          availableStudents = availableStudents.filter(s => s.id !== potentialSelection.id);
         }
       }
       
-      // 隨機選擇剩餘學生直到有3個學生
-      while (roundStudents.length < 3 && allStudents.length > 0) {
-        const randomIndex = Math.floor(Math.random() * allStudents.length)
-        roundStudents.push(allStudents[randomIndex])
-        allStudents.splice(randomIndex, 1)
+      // 補齊到3個學生
+      while (roundStudents.length < 3 && availableStudents.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableStudents.length);
+        roundStudents.push(availableStudents[randomIndex]);
+        availableStudents.splice(randomIndex, 1);
       }
-      
-      // 打亂順序
-      return shuffleArray(roundStudents)
+      return shuffleArray(roundStudents);
     }
     
-    setCurrentStudents(getRandomStudents())
+    if (currentRound <= TOTAL_STUDENT_ROUNDS) {
+        setCurrentStudents(getRandomStudents());
+    }
   }, [currentRound])
 
-  // 隨機打亂數組
   const shuffleArray = <T,>(array: T[]): T[] => {
     const newArray = [...array]
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -82,18 +69,27 @@ export default function StudentCards({ onSelect, onRoundComplete }: StudentCards
     
     onRoundComplete(currentRound, id)
 
-    // 延遲後進入下一輪
     setTimeout(() => {
-      setCurrentRound(prev => prev + 1)
-      setSelectedId(null)
+      if (currentRound < TOTAL_STUDENT_ROUNDS) {
+        setCurrentRound(prev => prev + 1)
+        setSelectedId(null)
+      } else {
+        if (onAllRoundsComplete) {
+          onAllRoundsComplete();
+        }
+      }
     }, 2000)
-  }, [selectedId, onSelect, onRoundComplete, currentRound])
+  }, [selectedId, onSelect, onRoundComplete, currentRound, onAllRoundsComplete])
+
+  if (currentRound > TOTAL_STUDENT_ROUNDS) {
+    return null; // 所有輪次結束後不渲染
+  }
 
   return (
     <div className="w-full max-w-6xl p-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold text-black">
-          第 {currentRound} 輪 / 共 3 輪
+          第 {currentRound} 輪 / 共 {TOTAL_STUDENT_ROUNDS} 輪
         </h2>
         <div className="text-xl font-medium text-black">
           請為以下學生選擇教育資源支持
@@ -125,7 +121,6 @@ export default function StudentCards({ onSelect, onRoundComplete }: StudentCards
               
               <p className="text-gray-600 text-sm mb-3">{student.summary}</p>
               
-              {/* 詳細資訊直接顯示 */}
               <div className="mt-2 space-y-2 text-sm flex-grow">
                 <div className="bg-gray-50 p-2 rounded">
                   <p className="font-medium text-gray-700">學業記錄：</p>

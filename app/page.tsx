@@ -2,9 +2,15 @@
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
+import { resetGameStats } from './lib/gameStore'
 
 export default function Home() {
   const router = useRouter()
+
+  const handleStartGame = () => {
+    resetGameStats()
+    router.push('/interview')
+  }
 
   return (
     <main className="min-h-screen bg-neutral-900 text-white flex flex-col items-center justify-center p-6">
@@ -19,7 +25,7 @@ export default function Home() {
           在多元文化的職場中，你將如何做出選擇？
         </p>
         <Button
-          onClick={() => router.push('/interview')}
+          onClick={handleStartGame}
           className="text-lg px-8 py-6"
           size="lg"
           variant="default"

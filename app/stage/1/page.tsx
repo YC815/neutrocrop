@@ -1,16 +1,17 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { applicants } from '@/data/applicants'
-import FeedbackDialog from '@/components/FeedbackDialog'
-import ApplicantCard from '@/components/ApplicantCard'
+import { applicants, Applicant } from '../../../data/applicants'
+import FeedbackDialog from '../../components/FeedbackDialog'
+import ApplicantCard from '../../components/ApplicantCard'
 import dynamic from 'next/dynamic'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { updateStage1Selection } from '../../lib/gameStore'
 
 // 使用動態導入確保 Dialog 組件只在客戶端渲染
 const ResumeDialog = dynamic(
-  () => import('../../../components/ResumeDialog'),
+  () => import('../../components/ResumeDialog'),
   { ssr: false }
 )
 
@@ -29,13 +30,19 @@ export default function StageOne() {
   const getPath = (id: string) => `/data/resumes/${id}.md`
 
   const handleSelection = () => {
-    setSelectedId(confirmingId)
-    setConfirmingId(null)
-    setShowFeedback(true)
+    if (confirmingId) {
+      const selectedApplicant = applicants.find(app => app.id === confirmingId);
+      if (selectedApplicant) {
+        updateStage1Selection(confirmingId, selectedApplicant.companyPreferred);
+      }
+      setSelectedId(confirmingId)
+      setConfirmingId(null)
+      setShowFeedback(true)
+    }
   }
 
   const handleFeedbackComplete = () => {
-    router.push('/email')
+    router.push('/email?stage=2')
   }
 
   // 添加 suppressHydrationWarning 屬性到外層容器
@@ -54,7 +61,7 @@ export default function StageOne() {
               <span className="font-medium text-indigo-700">點擊面試者可以查看詳細履歷</span>
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {applicants.map((applicant) => (
+              {applicants.map((applicant: Applicant) => (
                 <ApplicantCard
                   key={applicant.id}
                   data={applicant}

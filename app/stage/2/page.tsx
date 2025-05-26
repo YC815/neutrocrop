@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from "react"
-import VictimCards from "@/app/stage/2/VictimCards"
-import ResultEmail from "@/app/stage/2/ResultEmail"
-import { Round } from "@/app/types/victim"
+import { useState, useEffect, useCallback } from 'react'
+import VictimCards from './VictimCards'
+import ResultEmail from './ResultEmail'
+import { Round, Victim } from '../../types/victim'
+import { updateStage2Selection } from '../../lib/gameStore'
 
 interface Selection {
   roundId: number
@@ -12,28 +13,37 @@ interface Selection {
 
 export default function MedicalMission() {
   const [selections, setSelections] = useState<Selection[]>([])
-  const [isComplete, setIsComplete] = useState(false)
+  const [showResults, setShowResults] = useState(false)
 
   const handleSelect = (id: string) => {
-    setSelections(prev => [...prev, { roundId: prev.length + 1, victimId: id }])
+    // 在 VictimCards 組件中處理選擇邏輯和計時器
   }
 
-  const handleRoundComplete = (round: Round, selectedId: string) => {
-    // 如果完成十輪，設置完成狀態
-    if (selections.length + 1 >= 10) {
-      setIsComplete(true)
+  const handleRoundComplete = useCallback((round: Round, selectedVictimId: string) => {
+    const selectedVictim = round.victims.find(v => v.id === selectedVictimId);
+    if (selectedVictim) {
+      console.log(`[MedicalMission] Round ${round.id} complete. Selected: ${selectedVictim.name} (ID: ${selectedVictimId})`);
+      updateStage2Selection(round.id, selectedVictimId, selectedVictim.urgency, selectedVictim.isCompanyPreferred);
+      setSelections(prev => [...prev, { roundId: round.id, victimId: selectedVictimId }])
     }
-  }
+  }, []);
 
-  if (isComplete) {
+  const handleAllRoundsComplete = useCallback(() => {
+    console.log("[MedicalMission] All rounds complete! Showing results.");
+    setShowResults(true)
+  }, []);
+
+  if (showResults) {
     return <ResultEmail selections={selections} />
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">第二關：醫療資源分配</h1>
       <VictimCards 
         onSelect={handleSelect} 
-        onRoundComplete={handleRoundComplete}
+        onRoundComplete={handleRoundComplete} 
+        onAllRoundsComplete={handleAllRoundsComplete} 
       />
     </div>
   )

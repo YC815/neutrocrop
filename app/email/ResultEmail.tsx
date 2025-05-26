@@ -1,10 +1,7 @@
 'use client'
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import FinalReflectionAnimation from '@/components/FinalReflectionAnimation';
-import FinalScoreSummary from '@/components/FinalScoreSummary';
 
 interface ResultEmailProps {
   selectedProposalId: string;
@@ -12,8 +9,6 @@ interface ResultEmailProps {
 
 export default function ResultEmail({ selectedProposalId }: ResultEmailProps) {
   const router = useRouter();
-  const [showReflection, setShowReflection] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
 
   const proposalTitles: Record<string, string> = {
     "a": "族語振興與雙語教材計畫",
@@ -21,22 +16,9 @@ export default function ResultEmail({ selectedProposalId }: ResultEmailProps) {
     "c": "社區共融藝術牆計畫"
   };
 
-  const handleStartReflection = () => {
-    setShowReflection(true);
+  const handleShowEnding = () => {
+    router.push('/ending');
   };
-
-  const handleReflectionComplete = () => {
-    setShowReflection(false);
-    setShowSummary(true);
-  };
-
-  if (showReflection) {
-    return <FinalReflectionAnimation onComplete={handleReflectionComplete} />;
-  }
-
-  if (showSummary) {
-    return <FinalScoreSummary />;
-  }
 
   return (
     <div className="max-w-4xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
@@ -65,10 +47,10 @@ export default function ResultEmail({ selectedProposalId }: ResultEmailProps) {
           <div className="bg-gray-100 p-4 rounded-md my-5">
             <h3 className="text-lg font-medium mb-2">決策影響概述</h3>
             <p>每個決策都會對組織文化產生實質影響，你的選擇反映了特定的價值取向與優先順序。</p>
-            <p>審核序列已完成，現在是時候進行一些反思與總結。</p>
+            <p>審核序列已完成，現在是時候查看您的最終評估報告了。</p>
           </div>
           
-          <p>點擊下方按鈕開始最終反思。</p>
+          <p>點擊下方按鈕查看您的最終評估。</p>
           <p className="font-medium">NeutroCorp 決策分析系統</p>
         </div>
 
@@ -77,9 +59,9 @@ export default function ResultEmail({ selectedProposalId }: ResultEmailProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg"
-            onClick={handleStartReflection}
+            onClick={handleShowEnding}
           >
-            開始最終反思
+            查看最終評估
           </motion.button>
         </div>
       </div>

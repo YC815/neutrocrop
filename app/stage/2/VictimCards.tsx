@@ -2,19 +2,21 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Round, Victim } from "@/app/types/victim"
-import { rounds } from "@/app/data/victims"
+import { Round, Victim } from "../../types/victim"
+import { rounds } from "../../data/victims"
 
 interface VictimCardsProps {
   onSelect: (id: string) => void
   onRoundComplete: (round: Round, selectedId: string) => void
+  onAllRoundsComplete?: () => void;
 }
 
-export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsProps) {
-  const [currentRound, setCurrentRound] = useState(1)
-  const [timer, setTimer] = useState(10)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [victims, setVictims] = useState<Round['victims']>([])
+export default function VictimCards({ onSelect, onRoundComplete, onAllRoundsComplete }: VictimCardsProps) {
+  const TOTAL_ROUNDS = rounds.length;
+  const [currentRound, setCurrentRound] = useState(1);
+  const [timer, setTimer] = useState(10);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [victims, setVictims] = useState<Round['victims']>([]);
 
   // 隨機打亂受害者順序
   const shuffleArray = <T,>(array: T[]): T[] => {
@@ -49,54 +51,109 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
       lowUrgencyReactions[Math.floor(Math.random() * lowUrgencyReactions.length)]
   }
 
+  // useEffect 鉤子：當 currentRound 變化時執行，用於加載該回合的受害者數據並重置狀態
+  useEffect(() => {
+    console.log(`[VictimCards] New round effect. currentRound: ${currentRound}, TOTAL_ROUNDS: ${TOTAL_ROUNDS}`);
+
+    if (currentRound > TOTAL_ROUNDS) {
+      console.log(`[VictimCards] currentRound (${currentRound}) > TOTAL_ROUNDS (${TOTAL_ROUNDS}). All rounds should be complete.`);
+      if (onAllRoundsComplete) {
+        console.log("[VictimCards] Calling onAllRoundsComplete from new round effect.");
+        onAllRoundsComplete();
+      }
+      return; // 如果已經超過總輪數，則不執行後續的設置
+    }
+
+    // 清除上一輪的選擇並重設計時器
+    setSelectedId(null);
+    setTimer(10);
+    console.log(`[VictimCards] New round setup: selectedId reset to null, timer reset to 10. For round: ${currentRound}`);
+
+    const roundData = rounds.find(r => r.id === currentRound);
+    if (roundData) {
+      console.log(`[VictimCards] Loading and shuffling victims for new round ${currentRound}. Found ${roundData.victims.length} victims.`);
+      setVictims(shuffleArray(roundData.victims));
+    } else {
+      console.warn(`[VictimCards] Effect for new round: Could not find roundData for currentRound: ${currentRound}. This could happen if currentRound > TOTAL_ROUNDS.`);
+    }
+  // 依賴 currentRound 和 onAllRoundsComplete。TOTAL_ROUNDS 是常數。
+  // onAllRoundsComplete 應該由父組件用 useCallback 包裹以保持引用穩定。
+  }, [currentRound, onAllRoundsComplete, TOTAL_ROUNDS]);
+
   const handleSelect = useCallback((id: string) => {
-    if (selectedId) return
-    setSelectedId(id)
-    onSelect(id)
+    console.log(`[VictimCards] handleSelect called. ID: ${id}, Current selectedId: ${selectedId}, Current round: ${currentRound}`);
+    if (selectedId) {
+      console.log(`[VictimCards] handleSelect returning early. selectedId (${selectedId}) is already set for round ${currentRound}.`);
+      return;
+    }
     
-    const round = rounds.find(r => r.id === currentRound)
-    if (round) {
-      onRoundComplete(round, id)
+    setSelectedId(id);
+    console.log(`[VictimCards] setSelectedId called with: ${id}. currentRound: ${currentRound}`);
+    
+    const roundData = rounds.find(r => r.id === currentRound);
+    if (roundData) {
+      onSelect(id); // 呼叫 onSelect (雖然目前為空，但保持一致性)
+      onRoundComplete(roundData, id);
+    } else {
+      console.warn(`[VictimCards] handleSelect: Could not find roundData for currentRound: ${currentRound} when calling onRoundComplete.`);
     }
 
-    // 延遲後進入下一輪
     setTimeout(() => {
-      setCurrentRound(prev => prev + 1)
-      setTimer(10)
-      setSelectedId(null)
-    }, 2000)
-  }, [selectedId, onSelect, onRoundComplete, currentRound])
+      // 使用函數式更新來安全地推進回合，並在回調中檢查是否所有回合已完成
+      setCurrentRound(prevRound => {
+        console.log(`[VictimCards] setTimeout callback. prevRound: ${prevRound}, TOTAL_ROUNDS: ${TOTAL_ROUNDS}`);
+        // 即使 prevRound 達到 TOTAL_ROUNDS，我們仍然推進到下一輪 (TOTAL_ROUNDS + 1)
+        // 這樣 useEffect [currentRound, ...] 才能捕獲到 currentRound > TOTAL_ROUNDS 的情況
+        const nextRound = prevRound + 1;
+        if (prevRound < TOTAL_ROUNDS) {
+          console.log(`[VictimCards] setTimeout: Advancing from round ${prevRound} to ${nextRound}`);
+        } else {
+          // prevRound === TOTAL_ROUNDS (例如第10輪結束)
+          console.log(`[VictimCards] setTimeout: Advancing from final round ${prevRound} to ${nextRound} (which is > TOTAL_ROUNDS).`);
+        }
+        return nextRound; // 總是推進
+      });
+    }, 2000); // 2秒延遲
+  // 把 currentRound 加回來，因為 setTimeout 外部邏輯依賴它來查找 roundData
+  }, [selectedId, onSelect, onRoundComplete, TOTAL_ROUNDS, currentRound]); 
 
+  // useEffect 鉤子：處理計時器邏輯
   useEffect(() => {
-    const round = rounds.find(r => r.id === currentRound)
-    if (round) {
-      setVictims(shuffleArray(round.victims))
-    }
-  }, [currentRound])
-
-  useEffect(() => {
-    if (timer > 0 && !selectedId) {
-      const interval = setInterval(() => {
-        setTimer(prev => prev - 1)
-      }, 1000)
-      return () => clearInterval(interval)
-    } else if (timer === 0 && !selectedId) {
-      // 如果時間到還沒選擇，自動選擇最危急的
-      const round = rounds.find(r => r.id === currentRound)
-      if (round) {
-        const mostUrgent = round.victims.reduce((prev: Victim, current: Victim) => 
-          (current.urgency > prev.urgency) ? current : prev
-        )
-        handleSelect(mostUrgent.id)
+    let interval: NodeJS.Timeout | undefined = undefined;
+    if (timer > 0 && !selectedId && currentRound <= TOTAL_ROUNDS) {
+      interval = setInterval(() => {
+        setTimer(prev => prev - 1);
+      }, 1000);
+    } else if (timer === 0 && !selectedId && currentRound <= TOTAL_ROUNDS) {
+      console.log(`[VictimCards] Timer ended for round ${currentRound}. Auto-selecting.`);
+      const roundData = rounds.find(r => r.id === currentRound);
+      if (roundData && roundData.victims.length > 0) {
+        const mostUrgent = roundData.victims.reduce((prev, current) => (current.urgency > prev.urgency) ? current : prev, roundData.victims[0]);
+        console.log(`[VictimCards] Timer auto-selecting victim ID: ${mostUrgent.id}, Name: ${mostUrgent.name} in round ${currentRound}.`);
+        handleSelect(mostUrgent.id); // 自動選擇
+      } else {
+        console.warn(`[VictimCards] Timer auto-select: Could not find roundData or no victims for round ${currentRound}.`);
       }
     }
-  }, [timer, selectedId, currentRound, handleSelect])
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  // handleSelect 的依賴改變了，這裡也需要包含 currentRound
+  }, [timer, selectedId, currentRound, TOTAL_ROUNDS, handleSelect]);
+  
+  // 渲染邏輯
+  if (currentRound > TOTAL_ROUNDS) {
+    // 等待 onAllRoundsComplete 被調用並由父組件切換視圖
+    // 或者直接返回 null，如果 ResultEmail 不是由此組件控制
+    console.log("[VictimCards] Rendering null because currentRound > TOTAL_ROUNDS. Waiting for parent to switch view.");
+    return null;
+  }
 
   return (
     <div className="w-full max-w-6xl p-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold text-black">
-          第 {currentRound} 輪 / 共 10 輪
+          第 {currentRound} 輪 / 共 {TOTAL_ROUNDS} 輪
         </h2>
         <div className="text-xl font-medium text-black">
           剩餘時間：{timer} 秒
@@ -111,7 +168,14 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
               selectedId === victim.id ? 'border-green-500' : selectedId ? 'border-red-500' : 'border-gray-200'
             }`}
             whileHover={{ scale: 1.02 }}
-            onClick={() => handleSelect(victim.id)}
+            onClick={() => {
+              console.log(`[VictimCards] Card clicked. Victim ID: ${victim.id}, Name: ${victim.name}. Current selectedId: ${selectedId}. currentRound: ${currentRound}`);
+              if (currentRound <= TOTAL_ROUNDS) { // 只在遊戲進行中才允許選擇
+                 handleSelect(victim.id);
+              } else {
+                 console.log("[VictimCards] Click ignored, game is over.");
+              }
+            }}
           >
             <div className="p-4 bg-white">
               <div className="flex justify-between items-start mb-2">
@@ -138,5 +202,5 @@ export default function VictimCards({ onSelect, onRoundComplete }: VictimCardsPr
         ))}
       </div>
     </div>
-  )
+  );
 } 

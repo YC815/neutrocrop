@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ProposalDecision from '@/components/ProposalDecision';
+import { updateStage4Selection } from '../../lib/gameStore';
 
 export default function TaskBriefing4() {
   const router = useRouter();
@@ -12,13 +13,14 @@ export default function TaskBriefing4() {
   const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
 
   const handleProposalSubmit = (proposalId: string) => {
+    updateStage4Selection(proposalId);
     setSelectedProposal(proposalId);
     setShowProposal(false);
     setShowFeedback(true);
   };
 
   const handleBackToInbox = () => {
-    router.push('/inbox');
+    router.push('/email/result-email?proposal=' + selectedProposal);
   };
 
   const handleStartReflection = () => {

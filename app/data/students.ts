@@ -121,4 +121,6 @@ export const students: Student[] = [
     needsLevel: 5,
     companyPreferred: false
   },
-]; 
+];
+
+export const TOTAL_STUDENT_ROUNDS = 3; 
