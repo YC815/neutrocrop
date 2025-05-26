@@ -77,8 +77,9 @@ export default function ProposalDecision({ onSelect, onSubmit, selectedId }: Pro
             </div>
             {isSubmitted && selectedId === p.id && (
               <motion.div
-                initial={{ opacity: 0, rotate: -10 }}
-                animate={{ opacity: 1, rotate: 0 }}
+                initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 className="absolute bottom-2 right-2 text-red-600 text-xl font-bold"
               >
                 ✅ 通過

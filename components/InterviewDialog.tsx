@@ -23,8 +23,8 @@ export default function InterviewDialog({ onNext }: { onNext: () => void }) {
   }
 
   return (
-    <Card className="max-w-xl bg-neutral-800 shadow-xl">
-      <CardContent className="text-lg p-6">
+    <Card className="w-[32rem] min-h-[12rem] bg-neutral-800 shadow-xl flex flex-col">
+      <CardContent className="text-lg p-6 flex-grow flex flex-col justify-between">
         <AnimatePresence mode="wait">
           <motion.p
             key={index}
